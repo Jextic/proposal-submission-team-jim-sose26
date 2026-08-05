@@ -32,7 +32,7 @@
 
 <!-- 3–5 sentences. What is the idea, why does it matter, and what do you plan to do? -->
 
-In p5.js v2.0+, a default canvas is created as a guard in case the user calls on drawing methods before defining a canvas. More often than not, users will define their own canvas using `createCanvas()` which destroys the default canvas and creates a new canvas. This process seems redundant, can waste memory if the user is switching from 2D to WebGL context, and can cause a visual flicker when the default canvas is being replaced with the new one. I propose deferring the default canvas creation until right after setup() is completed or until it is explicitly needed by checking if `this._renderer` exists, creating a helper function to guard against edge cases, and modify getters to call on that helper function if there are early draw function calls.
+In p5.js v2.0+, a default canvas is created as a guard in case the user calls on drawing methods before defining a canvas. More often than not, users will define their own canvas using `createCanvas()` which destroys the default canvas and creates a new canvas. This process seems redundant, can waste memory if the user is switching from 2D to WebGL context, and can cause a visual flicker when the default canvas is being replaced with the new one. I propose deferring the default canvas creation until right after setup() is completed or until it is explicitly needed by checking if `this._renderer` exists and creating a helper function to guard against edge cases.
 
 ---
 
@@ -52,11 +52,9 @@ The p5.js editor makes the default canvas basically invisible by setting setting
 
 I propose to defer the canvas creation until it is explicitly needed. In p5.js/src/core/main.js, the 100x100 canvas is created in `async #_setup()` will be removed which leaves `this._renderer` to remain null. If the user defines a canvas in their sketch code inside of `function setup() {...}`, `this._renderer` is assigned a renderer instance. After `await context.setup()` is completed and if `this._renderer` is still null, the default 100x100 canvas will be assigned to `this._renderer`. That way, if the user already defined a canvas in their sketch code, the default canvas won't be created. It's possible that the user may call on `noCanvas()` in their sketch code. A boolean variable could be track and flag if this was called on. This would be an extra condition that needs to be checked after `await context.setup()` is completed so that the default canvas won't be created if this boolean is true.
 
-It's very possible that p5.js beginner's might call on drawing functions or read canvas properties in the `functio setup() {...}` in their sketch code. To handle these edge cases, a helper function (like `this._canvasExists()`) would be implemented to check if `this._renderer` exists. If it doesn't exist, the 100x100 default canvas would be created on demand to guard against canvas errors and crashes. Getter functions will be added/modifed for `canvas` and `drawingContext` so that if there are any early property reads, the helper function would be called on to create the default canvas. Since drawing functions like `background()` or `circle()` are executed with `this._renderer`, a getter function for `this._renderer` would also be modified to call on the helper function.  This would guarantee that early draw function calls and any addons inspecting canvas properties will still be compatible.
+It's very possible that p5.js beginner's might call on drawing functions or read canvas properties in the `functio setup() {...}` in their sketch code. To handle these edge cases, a helper function (like `this._canvasExists()`) would be implemented to check if `this._renderer` exists. If it doesn't exist, the 100x100 default canvas ould be created on demand to guard against canvas errors and crashes. Functions and properties that depend on the canvas, like `canvas` and `drawingContext`, would use this helper function if they are called when `this._renderer` is still null. This would guarantee that early draw function calls and any addons inspecting canvas properties will still be compatible.
 
 Since the `this._renderer` is bound to an individual p5 instance, this proposed solution should work well with instance mode. If multiple sketches are created, they should each have their own renderer property. 
-
-I'd also like to make it so that if there is no `draw()` function in the user's sketch code, the canvas creation would be skipped altogether. However, I still need to research and examine the codebase thoroughly again to make sure that it won't affect any addons or p5 operations. 
 
 ---
 
@@ -114,7 +112,7 @@ Week 8: Finalize the solution, implement suggested changes, and address any issu
 
 <!-- What will concretely exist at the end of the internship that does not exist today? -->
 
-The default canvas creation will be refactored so that it'll only be created when necessary. The automatic default canvas creation will only occur after setup() completes if `this._renderer` is null and noCanvas() was not called on. Private guard and helper functions will be implemented to ensure that all p5 functions and addons are compatible with the refactored default canvas creation without any behaviors breaking. All p5.js operations will be unchanged. The main difference is that the canvas creation will be smarter and the architecture will be cleaner.
+The default canvas creation will be refactored so that it'll only be created when necessary. The automatic default canvas creation will only occur after setup() completes if `this._renderer` is null and noCanvas() was not called on. Private guard and helper functions will be implemented to ensure that all p5 methods and internal addons are compatible with the refactored default canvas creation without any behaviors breaking. All p5.js operations will be unchanged. The main difference is that the canvas creation will be smarter and the architecture will be cleaner.
 
 ---
 
