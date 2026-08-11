@@ -42,6 +42,45 @@ Users who rely on screen readers would find this very helpful. After testing sen
 
 I've also noticed that this is primarily a Windows issue. MacOS VoiceOver has basic Unicode detection so it has the capability of guessing the text's language and switching to the correct narrator although I'm unsure how accurate the macOS VoiceOver usually is. Something to take note of is that if the screen reader doesn't support or doesn't have the language voice installed, it will still use the default voice instead. For the most part, users would already have the voice language that they want already installed and popular screen readers like NVDA already have support for tons of languages.
 
+HTML Test used for Windows Narrator and NVDA:
+`<div aria-label="English No Lang">
+  <p>this is a test</p>
+</div>
+<div aria-label="English With Lang" lang="en">
+  <p>this is a test</p>
+</div>
+<div aria-label="Spanish No Lang">
+  <p>esto es una prueba</p>
+</div>
+<div aria-label="Spanish With Lang" lang="es">
+  <p>esto es una prueba</p>
+</div>
+<div aria-label="Vietnamese No Lang">
+  <p>Cái này là bài thi</p>
+</div>
+<div aria-label="Vietnamese With Lang" lang="vi">
+  <p>Cái này là bài thi</p>
+</div>`
+
+I tested this with the English voice as the primary voice. I made sure that the Spanish language/voice pack and Vietnamese language/voice pack were installed for both NVDA and Windows Narrator before testing. The div containers with the lang attribute were successfully switched over to the proper narrator voice while the ones without the lang attribute only used the English voice.
+
+HTML Test in Hindi (Latin and Devanagari):
+`</div>
+<div aria-label="Hindi Latin No Lang">
+  <p>yah test hai</p>
+</div>
+<div aria-label="Hindi Latin With Lang" lang="hi">
+  <p>yah test hai</p>
+</div></div>
+<div aria-label="Hindi Devanagari No Lang">
+  <p>यह टेस्ट है</p>
+</div>
+<div aria-label="Hindi Devanagari With Lang" lang="hi">
+  <p>यह टेस्ट है</p>
+</div>`
+
+This test was generated with the help of Google Translate so the sentence itself may not be correct. The two tests with the lang attribute were successfully switched over to the Hindi voice narrator. The 1st test was used with the English voice narrator. It sounded ok but if I replaced it with a random longer sentence, it sounds a bit more incomprehensible. After the 2nd test, it immediately skipped over to the 4th test. It was most likely because the English voice doesn't recognize Devanagari and cannot read it so it just skipped and continued at the next detectable sentence.
+
 ---
 
 ## Proposed Solution 💡
