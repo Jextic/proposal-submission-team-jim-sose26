@@ -91,9 +91,16 @@ This test was generated with the help of Google Translate so the sentence itself
 
 <!-- High-level description of your approach and why you chose it. -->
 
-I propose to update the `describe()` and `describeElement()` functions in `p5.js/src/accessibility/describe.js` to accept an additional parameter which will define the lang attribute. Screen readers can already determine the values of the attribute so abbreviations like 'vi', 'es,', 'hi', and 'fr' can be detected as Vietnamese, Spanish, Hindi, and French. The `_describeHTML()` and `_describeElementHTML()` will also be updated accordingly so that if a lang parameter exists from the previous functions, it will inject a `lang='__'` into the div container. 
+I propose to update the `describe()` and `describeElement()` functions in `p5.js/src/accessibility/describe.js` to accept an additional parameter which will define the lang attribute. Screen readers can already determine the values of the attribute so abbreviations like 'vi', 'es', 'hi', and 'fr' can be detected as Vietnamese, Spanish, Hindi, and French. The `_describeHTML()` and `_describeElementHTML()` will also be updated accordingly so that it contains an empty lang attribute. The lang attribute will be defined if the parameter from the previous functions were also defined. Since an additional parameter is being added to the describe methods, FES would be updated accordingly to let the users know if the lang attribute parameter is invalid. Also, the lang attribute would added to the as part of the DOM so animated sketches (sketches that would call on describe functions repeatedly) would still support this. Performance would not be impacted since this would just be setting the lang attribute.
 
-The parameter will also be optional so that existing p5.js sketches won't be affected. Adding the lang parameter also shouldn't affect existing parameters like `LABEL` or `FALLBACK` The reference documentations would also be updated to encourage users to write in the native script of their languages instead of the transliteration of that language in Latin characters.
+The parameter will also be optional so that existing p5.js sketches won't be affected. Adding the lang parameter also shouldn't affect existing parameters like `LABEL` or `FALLBACK`. However, there are two approaches I had in mind for the optional lang parameter to coexist with the existing optional display parameter:
+If the user only wanted to set the describe functions to have text and the lang attribute (ignore the display parameter),
+1. The describe functions would simply have a third parameter. In sketches, it would look something like `describe('text', null, 'en')`. This would look a little awkward but it would be a safer implementation.
+2. The describe functions would be modified so that if the 2nd parameter isn't one of the display parameters, it would be considered a lang attribute instead. There would definitely be ambiguity since display and lang are two different concepts sharing the same parameter.
+
+I was going to consider modifying the functions for textOutput() and gridOutput() to support multilingual screen reader voicing switching as well based on the discussion in [Issue #6992](https://github.com/processing/p5.js/issues/6992), it seems like these two functions might be reworked or removed.
+
+The reference documentations would also be updated to encourage users to write in the native script of their languages instead of the transliteration of that language in Latin characters.
 
 ---
 
