@@ -95,7 +95,7 @@ I propose to update the `describe()` and `describeElement()` functions in `p5.js
 
 The parameter will also be optional so that existing p5.js sketches won't be affected. Adding the lang parameter also shouldn't affect existing parameters like `LABEL` or `FALLBACK`. However, there are two approaches I had in mind for the optional lang parameter to coexist with the existing optional display parameter:
 If the user only wanted to set the describe functions to have text and the lang attribute (ignore the display parameter),
-1. The describe functions would simply have a third parameter. In sketches, it would look something like `describe('text', null, 'en')`. This would look a little awkward but it would be a safer implementation.
+1. The describe functions would simply have a third parameter. In sketches, it would look something like `describe('text', null, 'en')` or `describe('text', undefined, 'en')`. This would look a little awkward but it would be a safer implementation.
 2. The describe functions would be modified so that if the 2nd parameter isn't one of the display parameters, it would be considered a lang attribute instead. There would definitely be ambiguity since display and lang are two different concepts sharing the same parameter.
 
 I was going to consider modifying the functions for textOutput() and gridOutput() to support multilingual screen reader voicing switching as well based on the discussion in [Issue #6992](https://github.com/processing/p5.js/issues/6992), it seems like these two functions might be reworked or removed.
